@@ -1,0 +1,97 @@
+/**
+ * Created by zy on 16/12/26.
+ */
+
+/**
+
+ 下面开始加入新的东西
+ 订阅 subscribe
+
+ 每次reduce被action触发,订阅都会被调用
+
+ 这里action被触发了2次,来了2个jone,但是却只有一个lily和jack
+
+*/
+/**
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ ///////////////////////////////////////////////////        故事事件的定义    /////////////////////////////////////////////////////
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ **/
+// 导入 redux
+var redux = require('redux');
+var createStore = redux.createStore;
+
+// 常量 用于给reduce和action引用,避免笔误而已
+const ActionTypes = {
+    Bell_Rings: 'Bell_Rings'
+}
+
+// 初始化状态 redux自己会执行一次dispatch(initial State)
+var initialState = {
+    student: [],
+    aside: '初始的教室空空的'
+}
+
+// 定义一个action动作
+var BellRingsAction = {
+    type: ActionTypes.Bell_Rings,
+    student: ['lily', 'jack'],
+    aside: '铃声响了,同学们进教室了.'
+}
+
+
+// 这是一个reduce, 初始接受现在的state, 可能还不知道action的存在
+// 想象一下第一次dispatch(getUsers(initialState))被执行时的函数运行过程和结果
+function StudentAction(state, action) {
+    console.info(state?'action被调用':'初始化action被调用 ->')
+    state = state || initialState
+
+    switch (action.type) {
+        case ActionTypes.Bell_Rings:
+            // 合并原来的state和action内容
+            return Object.assign({}, state, {
+                student: action.student,
+                aside: action.aside
+            })
+        default :
+            return state;
+    }
+
+}
+
+// 将 reduce 放进 store
+var store = createStore(StudentAction);
+
+
+// 定义一个监听器
+store.subscribe(function () {
+    var currentState = store.getState();
+    currentState.student.push('jone');
+    console.info('监听器被调用')
+})
+/**
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////   定义完成 故事真正开始了   /////////////////////////////////////////////////////////////
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ **/
+
+
+// 输出初始state
+console.log(store.getState());
+
+
+// 将一个 action 传入 dispatch,dispatch会调用 reduce导致 state 更新,
+//使用 被直接定义的action
+store.dispatch(BellRingsAction);
+store.dispatch(BellRingsAction);
+
+
+// 修改以后输出state
+console.log(store.getState());
+
+
+/**
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////// 故事结束     ////////////////////////////////////////////////////////////////
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ **/
